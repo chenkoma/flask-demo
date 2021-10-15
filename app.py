@@ -53,26 +53,38 @@ def forge():
     click.echo('Done.')
 
 
+# @app.route('/')
+# def index():
+#     # name = 'Grey Li'
+#     # movies = [
+#     #     {'title': 'My Neighbor Totoro', 'year': '1988'},
+#     #     {'title': 'Dead Poets Society', 'year': '1989'},
+#     #     {'title': 'A Perfect World', 'year': '1993'},
+#     #     {'title': 'Leon', 'year': '1994'},
+#     #     {'title': 'Mahjong', 'year': '1996'},
+#     #     {'title': 'Swallowtail Butterfly', 'year': '1996'},
+#     #     {'title': 'King of Comedy', 'year': '1999'},
+#     #     {'title': 'Devils on the Doorstep', 'year': '1999'},
+#     #     {'title': 'WALL-E', 'year': '2008'},
+#     #     {'title': 'The Pork of Music', 'year': '2012'},
+#     # ]
+#     return render_template('index.html', name=name, movies=movies)
+
+@app.context_processor
+def inject_user():
+    user = User.query.first()
+    return dict(user=user)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # user = User.query.first
+    # return render_template('404.html', user=user), 404
+    return render_template('404.html'), 404
+
+
 @app.route('/')
 def index():
-    # name = 'Grey Li'
-    # movies = [
-    #     {'title': 'My Neighbor Totoro', 'year': '1988'},
-    #     {'title': 'Dead Poets Society', 'year': '1989'},
-    #     {'title': 'A Perfect World', 'year': '1993'},
-    #     {'title': 'Leon', 'year': '1994'},
-    #     {'title': 'Mahjong', 'year': '1996'},
-    #     {'title': 'Swallowtail Butterfly', 'year': '1996'},
-    #     {'title': 'King of Comedy', 'year': '1999'},
-    #     {'title': 'Devils on the Doorstep', 'year': '1999'},
-    #     {'title': 'WALL-E', 'year': '2008'},
-    #     {'title': 'The Pork of Music', 'year': '2012'},
-    # ]
-    return render_template('index.html', name=name, movies=movies)
-
-
-@app.route('/db')
-def index_db():
     user = User.query.first()
     print(user.name)
     movies = Movie.query.all()
