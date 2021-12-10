@@ -21,6 +21,7 @@ def initdb(drop):
     db.create_all()
     click.echo('Initialized database.')  # 输出提示信息
 
+
 # @app.route('/')
 # def hello():
 #     return '<h1>Hello Totoro!</h1><img src="http://helloflask.com/totoro.gif">'
@@ -93,19 +94,40 @@ def index():
 
         # 参数验证
         if not title and not year or len(year) > 4 and len(title) > 60:
-            flash('Invalid input.')     # 显示错误提示
-            return redirect(url_for('index'))       # 重定向回主页
+            flash('Invalid input.')  # 显示错误提示
+            return redirect(url_for('index'))  # 重定向回主页
         # 保存表单数据到数据库中
-        movie = Movie(title=title, year=year)   # 创建记录
+        movie = Movie(title=title, year=year)  # 创建记录
         db.session.add(movie)
         db.session.commit()
-        flash('Item created')   # 显示成功创建的提示
-        return redirect(url_for('index'))   # 重定向回主页
+        flash('Item created')  # 显示成功创建的提示
+        return redirect(url_for('index'))  # 重定向回主页
 
     user = User.query.first()
     print(user.name)
     movies = Movie.query.all()
     return render_template('index.html', user=user, movies=movies)
+
+
+@app.route('/movie/edit/<int:movie_id>', methods=['GET', 'POST'])
+def edit(movie_id):
+    movie = Movie.query.get_or_404(movie_id)
+
+    if request.method == 'POST':  # 处理编辑表单的提交请求
+        title = request.form['title']
+        year = request.form['year']
+
+        if not title or not year or len(year) != 4 or len(title) > 60:
+            flash("Invalid input.")
+            return redirect(url_for('edit', movie_id=movie_id))  # 重定向回对应的编辑页面
+
+        movie.title = title  # 更新标题
+        movie.year = year  # 更新年份
+        # db.session.update(movie)
+        db.session.commit()  # 提交数据库会话
+        flash("Item updated.")
+        return redirect(url_for('index'))  # 重定向回主页
+    return render_template('edit.html', movie=movie)  # 传入被编辑的电影记录
 
 
 @app.route('/user/<name>')
