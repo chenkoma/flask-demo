@@ -1,4 +1,4 @@
-from flask import Flask, escape, url_for, render_template
+from flask import request, Flask, escape, url_for, render_template, flash, redirect
 from exts import db
 import config
 from user.index import *
@@ -9,6 +9,7 @@ app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
 app.register_blueprint(user, url_prefix="/user")
+app.config['SECRET_KEY'] = 'TPmi4aLWRbyVq8zu9v82dWYW1'
 
 
 @app.cli.command()  # 注册为命令
@@ -83,8 +84,24 @@ def page_not_found(e):
     return render_template('404.html'), 404
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        # 获取表单数据
+        title = request.form.get('title')
+        year = request.form.get('year')
+
+        # 参数验证
+        if not title and not year or len(year) > 4 and len(title) > 60:
+            flash('Invalid input.')     # 显示错误提示
+            return redirect(url_for('index'))       # 重定向回主页
+        # 保存表单数据到数据库中
+        movie = Movie(title=title, year=year)   # 创建记录
+        db.session.add(movie)
+        db.session.commit()
+        flash('Item created')   # 显示成功创建的提示
+        return redirect(url_for('index'))   # 重定向回主页
+
     user = User.query.first()
     print(user.name)
     movies = Movie.query.all()
