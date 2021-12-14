@@ -130,6 +130,15 @@ def edit(movie_id):
     return render_template('edit.html', movie=movie)  # 传入被编辑的电影记录
 
 
+@app.route('/movie/delete/<int:movie_id>', methods=['POST'])
+def delete(movie_id):
+    movie = Movie.query.get_or_404(movie_id)  # 获取电影记录
+    db.session.delete(movie)  # 删除对应的记录
+    db.session.commit()  # 提交数据库会话
+    flash('Item delete')
+    return redirect(url_for('index'))
+
+
 @app.route('/user/<name>')
 def user_page(name):
     return 'User: %s' % escape(name)
